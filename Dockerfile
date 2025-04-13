@@ -1,9 +1,19 @@
-# A Script to auto install Pufferpanel 
+FROM ubuntu:20.04
 
-curl -s https://packagecloud.io/install/repositories/pufferpanel/pufferpanel/script.deb.sh | sudo bash
-sudo apt-get install pufferpanel
-sudo systemctl enable pufferpanel
-sudo pufferpanel user add --email foxytoux@gmail.com --name foxytoux --password Fox21200 --admin
-sudo systemctl enable --now pufferpanel
+# Install dependencies
+RUN apt-get update && apt-get install -y curl gnupg sudo
 
-# I uses https://docs.pufferpanel.com/en/2.x/installing.html to make this easy script, please look over there is there is any problem
+# Add PufferPanel repository and install it
+RUN curl -s https://packagecloud.io/install/repositories/pufferpanel/pufferpanel/script.deb.sh | bash && \
+    apt-get install -y pufferpanel
+
+# Enable systemd service (note: this won't run in a container without extra setup)
+RUN systemctl enable pufferpanel
+
+# Create an admin user
+RUN pufferpanel user add --email foxytoux@gmail.com --name foxytoux --password Fox21200 --admin
+
+# Expose the web interface port (default is 8080)
+EXPOSE 8080
+
+CMD ["pufferpanel"]
